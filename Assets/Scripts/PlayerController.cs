@@ -1,51 +1,46 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private float speed = 1f;
+
     private bool contactoSuelo = false;
-    private Rigidbody2D rigidbody2DPlayer;
+    public Rigidbody2D rigidbody2DPlayer;
+    //Le ponemos public a la bala para que se pueda arrastras y asociar desde la interface de Unity
+    public GameObject bulletPrefab;
     private Animator animatorPlayer;
     public AudioSource audioSourceSalto;
     public AudioSource audioSourceCaida;
+    public AudioSource audioSourceShot;
+
+    //Estas 2 variables son utilizadas en el sceneController
+    public bool nextLevel = false;
+    public bool perdiste = false;
     // Start is called before the first frame update
     void Start()
     {
         //Necesitamos el rigidBody para generar una fuerza hacia arriba para el salto
         rigidbody2DPlayer = GetComponent<Rigidbody2D>();
-        //Para manejar las transiciones entre animaciones necesitamos acceder al animator
+        //Para manejar las transiciones entre animaciones (que se vean los sprites mirando arriba o abajo) necesitamos acceder al animator
         animatorPlayer = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
         inputSystem();
-
-        float x = transform.position.x;
-        float y = transform.position.y;
-        Debug.Log("x: "+x+", y: "+y);
-
         collider();
-
-        
+        //Debug(); 
     }
-
-    //Si ponemos el sistema de nput con este método podemos obviar el poner velocidad*Time.deltaTime
-    private void FixedUpdate()
-    {
-    }
-
   
     private void inputSystem()
     {
-        //delTime devuelve el intervalo en segundos desde el último fame, así que se utiliza para sincronizar
+        //delTime devuelve el intervalo en segundos desde el último frame, así que se utiliza para sincronizar
         float deltaTime = Time.deltaTime;
+        //Solo utilizada para que vaya más rápido
+        float speed = 1f;
         /***El movimiento se puede hacer por 2 formas****/
-        //La 1 frma es con Input.GetAxis
+        //La 1 forma es con Input.GetAxis
         //Si pulsa en Edit->Project settings->Input, le abrirá InputMangaer, despliega Axes, despues despliega Horizontal
         //Unity guarda unas teclas relaccionadas por defecto, en Negative button pone flecha izquierda y en positive button pone flecha derecha
         //Si te fijas en Joy num permite detectar el JoyStick
@@ -71,14 +66,27 @@ public class PlayerController : MonoBehaviour
             {
                 audioSourceSalto.Play();
                 //Aplicamos una fuerza al rigidBody cada vez que se pulse el espacio
-                //rigidbody2DPlayer.AddForce(Vector2.up * 200f);
+                //También es posible ponerlo así: rigidbody2DPlayer.AddForce(Vector2.up * 200f);
                 rigidbody2DPlayer.AddForce(new Vector2(0, 200f));
             }
         }
-        /**
-        * Invirtiendo el sprite cuando cambia de dirección
-        */
-        float vHorizontal = Input.GetAxis("Horizontal");
+        //Si se pulsa la tecla espacio disparamos
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            audioSourceShot.Play();
+            //La función Instantiate coge un prefab y lo duplica en algún sitio del mundo, con nuestra posivión, uaternion.identity le está diciendo con rotación 0
+            Vector3 vector2Direction;
+            if (transform.localScale.x == 1.0f) vector2Direction = Vector2.right;
+            else vector2Direction = Vector2.left;
+
+            GameObject bullet= Instantiate(bulletPrefab, transform.position+vector2Direction*0.01f, (Quaternion.identity));
+            bullet.GetComponent<BulletController>().SetDirection(vector2Direction);
+
+        }
+            /**
+            * Invirtiendo el sprite cuando cambia de dirección
+            */
+            float vHorizontal = Input.GetAxis("Horizontal");
         //animator.SetBool("running",vHorizontal!=0.0f );
         //Aki pongo Abs por vHorizontal da 0.01
         animatorPlayer.SetFloat("velocity",Mathf.Abs(vHorizontal));
@@ -90,10 +98,10 @@ public class PlayerController : MonoBehaviour
     private void collider()
     {
         // Chekeo con los bordes del mundo
-        //Clamp hace que nuestra variable no se salga de un mínimo y un máximo
-        float newX = Mathf.Clamp(transform.position.x, -16.5f, 17.0f);
-        //float newY = Mathf.Clamp(transform.position.y, -10, 10);
-        transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+        //Clamp hace que nuestra variable no se salga de un mínimo y un máximo y así no ande más de la cuenta
+        //float newX = Mathf.Clamp(transform.position.x, cameraController.x_minimo, cameraController.x_maximo);
+        //float newY = Mathf.Clamp(transform.position.y, cameraController.y_minimo, cameraController.y_maximo);
+        //transform.position = new Vector3(newX, transform.position.y, transform.position.z);
 
 
         //Chekeo colision que se ha caido el player
@@ -123,6 +131,11 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Platform") contactoSuelo = true;
+        if (collision.gameObject.tag == "Enemy") PlayerMuere();
+        if (collision.gameObject.tag == "Next_level")
+        {
+            nextLevel = true;
+        }
         //animatorPlayer.SetFloat("Saltando",0);
     }
     private void OnCollisionExit2D(Collision2D collision)
@@ -133,7 +146,20 @@ public class PlayerController : MonoBehaviour
 
 
 
-    private void PlayerMuere() { 
-        transform.position = new Vector3(-16.5f, 0, 0);
+    private void PlayerMuere() {
+        //transform.position = new Vector3(startPoint.transform.position.x, startPoint.transform.position.y, transform.position.z);
+        
+        //Con esto conseguimos que el player se congele
+        rigidbody2DPlayer.constraints = RigidbodyConstraints2D.FreezeAll;
+        //El perdiste será gestionado en SceneController
+        perdiste = true;
+    }
+
+
+    private void Debug()
+    {
+        //float x = transform.position.x;
+        //float y = transform.position.y;
+        //Debug.Log("x: "+x+", y: "+y);
     }
 }

@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Money
   - Next_level
+  - Rebote
   layers:
   - Default
   - TransparentFX
