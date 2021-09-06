@@ -16,6 +16,15 @@ public class PlayerController : MonoBehaviour
     //Estas 2 variables son utilizadas en el sceneController
     public bool nextLevel = false;
     public bool perdiste = false;
+
+    //delTime devuelve el intervalo en segundos desde el último frame, así que se utiliza para sincronizar
+    float deltaTime;
+    //Solo utilizada para que vaya más rápido
+    float speed;
+    bool canMoveRight = false;
+    bool canMoveLeft = false;
+
+   
     // Start is called before the first frame update
     void Start()
     {
@@ -23,6 +32,8 @@ public class PlayerController : MonoBehaviour
         rigidbody2DPlayer = GetComponent<Rigidbody2D>();
         //Para manejar las transiciones entre animaciones (que se vean los sprites mirando arriba o abajo) necesitamos acceder al animator
         animatorPlayer = GetComponent<Animator>();
+        deltaTime = Time.deltaTime;
+        speed = 1f;
     }
 
     // Update is called once per frame
@@ -31,14 +42,12 @@ public class PlayerController : MonoBehaviour
         inputSystem();
         collider();
         //Debug(); 
+        
     }
   
     private void inputSystem()
     {
-        //delTime devuelve el intervalo en segundos desde el último frame, así que se utiliza para sincronizar
-        float deltaTime = Time.deltaTime;
-        //Solo utilizada para que vaya más rápido
-        float speed = 1f;
+
         /***El movimiento se puede hacer por 2 formas****/
         //La 1 forma es con Input.GetAxis
         //Si pulsa en Edit->Project settings->Input, le abrirá InputMangaer, despliega Axes, despues despliega Horizontal
@@ -51,50 +60,100 @@ public class PlayerController : MonoBehaviour
         /**
          * 2 Forma con Input.GetKey
          */
-        if (Input.GetKey(KeyCode.LeftArrow))
+        if (Input.GetKey(KeyCode.LeftArrow) || canMoveLeft)
         {
             transform.position -= new Vector3(speed * deltaTime, 0, 0);
         }
-        if (Input.GetKey(KeyCode.RightArrow))
+
+        if (Input.GetKey(KeyCode.RightArrow) || canMoveRight)
         {
             transform.position += new Vector3(speed * deltaTime, 0, 0);
         }
+
+
         //Al presionar la tecla hacia arriba saltará
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            if (contactoSuelo)
-            {
-                audioSourceSalto.Play();
-                //Aplicamos una fuerza al rigidBody cada vez que se pulse el espacio
-                //También es posible ponerlo así: rigidbody2DPlayer.AddForce(Vector2.up * 200f);
-                rigidbody2DPlayer.AddForce(new Vector2(0, 200f));
-            }
+            MoveJumpWithRigidBody();
         }
+
+
+
+
         //Si se pulsa la tecla espacio disparamos
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            audioSourceShot.Play();
-            //La función Instantiate coge un prefab y lo duplica en algún sitio del mundo, con nuestra posivión, uaternion.identity le está diciendo con rotación 0
-            Vector3 vector2Direction;
-            if (transform.localScale.x == 1.0f) vector2Direction = Vector2.right;
-            else vector2Direction = Vector2.left;
-
-            GameObject bullet= Instantiate(bulletPrefab, transform.position+vector2Direction*0.01f, (Quaternion.identity));
-            bullet.GetComponent<BulletController>().SetDirection(vector2Direction);
+            CreateShot();
 
         }
             /**
             * Invirtiendo el sprite cuando cambia de dirección
             */
-            float vHorizontal = Input.GetAxis("Horizontal");
+            
+        float vHorizontal = Input.GetAxis("Horizontal");
         //animator.SetBool("running",vHorizontal!=0.0f );
         //Aki pongo Abs por vHorizontal da 0.01
-        animatorPlayer.SetFloat("velocity",Mathf.Abs(vHorizontal));
+        //animatorPlayer.SetFloat("velocity",Mathf.Abs(vHorizontal));
         //Cambiamos la animación cuando vaya a la izquierda tan solo detectando si es menor qe 0 e innviertiendo el sprite
         if (vHorizontal < 0) transform.localScale = new Vector3(-1.0f,1.0f,1.0f);
         else if (vHorizontal > 0) transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
     }
 
+    public void MoveLeftWithTransform()
+    {
+        canMoveLeft = true;
+        //Ponemos el sprite mirando a la izquierda
+        transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
+        //Le hacemos que se anime
+        animatorPlayer.SetFloat("velocity", 1.0f);
+        //Movemos al personaje a la izquierda
+        transform.position -= new Vector3(speed * deltaTime, 0, 0);
+    }
+    public void NotMoveLeftWithTransform()
+    {
+        //paramos la animación
+        animatorPlayer.SetFloat("velocity", 0);
+        canMoveLeft = false;
+    }
+    public void MoveRightWithTransform()
+    {
+        canMoveRight = true;
+        //Ponemos el sprite mirando a la derecha
+        transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        //Le hacemos que se anime
+        animatorPlayer.SetFloat("velocity", 1.0f);
+        //Movemos el personaje a la derecha
+        transform.position += new Vector3(speed * deltaTime, 0, 0);
+    }
+    public void NotMoveRightWithTransform()
+    {
+        //paramos la animación
+        animatorPlayer.SetFloat("velocity", 0);
+        canMoveRight = false;
+    }
+    public void MoveJumpWithRigidBody()
+    {
+        if (contactoSuelo)
+        {
+            audioSourceSalto.Play();
+            //Aplicamos una fuerza al rigidBody cada vez que se pulse el espacio
+            //También es posible ponerlo así: rigidbody2DPlayer.AddForce(Vector2.up * 200f);
+            rigidbody2DPlayer.AddForce(new Vector2(0, 200f));
+        }
+    }
+    public void CreateShot()
+    {
+        audioSourceShot.Play();
+        //La función Instantiate coge un prefab y lo duplica en algún sitio del mundo, con nuestra posivión, uaternion.identity le está diciendo con rotación 0
+        Vector3 vector2Direction;
+        if (transform.localScale.x == 1.0f) vector2Direction = Vector2.right;
+        else vector2Direction = Vector2.left;
+
+        GameObject bullet = Instantiate(bulletPrefab, transform.position + vector2Direction * 0.01f, (Quaternion.identity));
+        bullet.GetComponent<BulletController>().SetDirection(vector2Direction);
+    }
+
+    
     private void collider()
     {
         // Chekeo con los bordes del mundo
@@ -131,7 +190,11 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Platform") contactoSuelo = true;
-        if (collision.gameObject.tag == "Enemy") PlayerMuere();
+        if (collision.gameObject.tag == "Enemy")
+        {
+            Destroy(collision.gameObject);
+            PlayerMuere();
+        }
         if (collision.gameObject.tag == "Next_level")
         {
             nextLevel = true;
@@ -150,16 +213,11 @@ public class PlayerController : MonoBehaviour
         //transform.position = new Vector3(startPoint.transform.position.x, startPoint.transform.position.y, transform.position.z);
         
         //Con esto conseguimos que el player se congele
-        rigidbody2DPlayer.constraints = RigidbodyConstraints2D.FreezeAll;
+        //rigidbody2DPlayer.constraints = RigidbodyConstraints2D.FreezeAll;
         //El perdiste será gestionado en SceneController
         perdiste = true;
+
     }
 
 
-    private void Debug()
-    {
-        //float x = transform.position.x;
-        //float y = transform.position.y;
-        //Debug.Log("x: "+x+", y: "+y);
-    }
 }

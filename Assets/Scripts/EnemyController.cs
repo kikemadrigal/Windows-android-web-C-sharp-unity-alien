@@ -11,13 +11,15 @@ public class EnemyController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        rigidbody2DEnemy = GetComponent<Rigidbody2D>();
+        //rigidbody2DEnemy = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        rigidbody2DEnemy.velocity = new Vector2(velocidad,rigidbody2DEnemy.velocity.y);
+        float deltaTime = Time.deltaTime;
+        //rigidbody2DEnemy.velocity = new Vector2(velocidad,0);
+        transform.position -= new Vector3(velocidad * deltaTime, 0, 0);
 
     }
 
