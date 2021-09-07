@@ -24,7 +24,7 @@ public class GameController : MonoBehaviour
         audioSourceMusic.Play();
         indiceDeNiveles = 0;
         lives = 10;
-
+        playerController.SetPosition(new Vector3 (-4f,0,0));
         //objetoNivel = Instantiate(levelPrefab[indiceDeNiveles]);
        // objetoNivel.transform.SetParent(this.transform);
     }

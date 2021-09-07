@@ -47,19 +47,6 @@ public class PlayerController : MonoBehaviour
   
     private void inputSystem()
     {
-
-        /***El movimiento se puede hacer por 2 formas****/
-        //La 1 forma es con Input.GetAxis
-        //Si pulsa en Edit->Project settings->Input, le abrirá InputMangaer, despliega Axes, despues despliega Horizontal
-        //Unity guarda unas teclas relaccionadas por defecto, en Negative button pone flecha izquierda y en positive button pone flecha derecha
-        //Si te fijas en Joy num permite detectar el JoyStick
-        /*
-        float vHorizontal = Input.GetAxis("Horizontal");
-        transform.position += new Vector3(vHorizontal*deltaTime, 0, 0);
-        */
-        /**
-         * 2 Forma con Input.GetKey
-         */
         if (Input.GetKey(KeyCode.LeftArrow) || canMoveLeft)
         {
             //para desplazarlo a la izquierda le sumamos un vector que el x tenga una unidad menos
@@ -82,50 +69,28 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.RightArrow))
             animatorPlayer.SetFloat("velocity", 0);
 
-
-        
-
         //Al presionar la tecla hacia arriba saltará
         if (Input.GetKeyDown(KeyCode.UpArrow))
             MoveJumpWithRigidBody();
-        
-
-
-
 
         //Si se pulsa la tecla espacio disparamos
         if (Input.GetKeyDown(KeyCode.Space))
-
             CreateShot();
-        /**
-        * Invirtiendo el sprite cuando cambia de dirección
-        */
 
-        // float vHorizontal = Input.GetAxis("Horizontal");
-        //Debug.Log(vHorizontal);
-        //animator.SetBool("running",vHorizontal!=0.0f );
-        //Aki pongo Abs por vHorizontal da 0.01
-        animatorPlayer.SetFloat("velocity",Mathf.Abs(vHorizontal));
-        //Cambiamos la animación cuando vaya a la izquierda tan solo detectando si es menor qe 0 e innviertiendo el sprite
-        if (vHorizontal < 0) transform.localScale = new Vector3(-1.0f,1.0f,1.0f);
-        else if (vHorizontal > 0) transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
        
     }
 
-    public void MoveLeftWithTransform() => canMoveLeft = true;
-
-
-
+    public void MoveLeftWithTransform()
+    {
+        canMoveLeft = true;
+    }
     public void NotMoveLeftWithTransform()
     {
         //paramos la animación
         animatorPlayer.SetFloat("velocity", 0);
         canMoveLeft = false;
-
     }
-    public void MoveRightWithTransform() => canMoveRight = true;
-    
-        
+    public void MoveRightWithTransform() { canMoveRight = true; }
     
     public void NotMoveRightWithTransform()
     {
@@ -149,13 +114,6 @@ public class PlayerController : MonoBehaviour
     
     private void collider()
     {
-        // Chekeo con los bordes del mundo
-        //Clamp hace que nuestra variable no se salga de un mínimo y un máximo y así no ande más de la cuenta
-        //float newX = Mathf.Clamp(transform.position.x, cameraController.x_minimo, cameraController.x_maximo);
-        //float newY = Mathf.Clamp(transform.position.y, cameraController.y_minimo, cameraController.y_maximo);
-        //transform.position = new Vector3(newX, transform.position.y, transform.position.z);
-
-
         //Chekeo colision que se ha caido el player
         if (transform.position.y < -1)
         {
@@ -227,7 +185,7 @@ public class PlayerController : MonoBehaviour
         //transform.position = new Vector3(startPoint.transform.position.x, startPoint.transform.position.y, transform.position.z);
         
         //Con esto conseguimos que el player se congele
-        //rigidbody2DPlayer.constraints = RigidbodyConstraints2D.FreezeAll;
+        rigidbody2DPlayer.constraints = RigidbodyConstraints2D.FreezeAll;
         //El perdiste será gestionado en SceneController
         perdiste = true;
 
