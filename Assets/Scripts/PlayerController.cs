@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour
         if (transform.localScale.x == 1.0f) vector2Direction = Vector2.right;
         else vector2Direction = Vector2.left;
 
-        GameObject bullet = Instantiate(bulletPrefab, transform.position + vector2Direction * 0.01f, (Quaternion.identity));
+        GameObject bullet = Instantiate(bulletPrefab, transform.position + vector2Direction * 0.15f, (Quaternion.identity));
         bullet.GetComponent<BulletController>().SetDirection(vector2Direction);
     }
 
