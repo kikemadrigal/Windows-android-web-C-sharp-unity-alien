@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour
 {
 
     private bool contactoSuelo = false;
+    private float speed = 0.5f;
     public Rigidbody2D rigidbody2DPlayer;
     //Le ponemos public a la bala para que se pueda arrastras y asociar desde la interface de Unity
     public GameObject bulletPrefab;
@@ -20,8 +21,6 @@ public class PlayerController : MonoBehaviour
     public bool addPoints = false;
     //delTime devuelve el intervalo en segundos desde el último frame, así que se utiliza para sincronizar
     float deltaTime;
-    //Solo utilizada para que vaya más rápido
-    float speed;
     bool canMoveRight = false;
     bool canMoveLeft = false;
 
@@ -35,8 +34,6 @@ public class PlayerController : MonoBehaviour
         rigidbody2DPlayer = GetComponent<Rigidbody2D>();
         //Para manejar las transiciones entre animaciones (que se vean los sprites mirando arriba o abajo) necesitamos acceder al animator
         animatorPlayer = GetComponent<Animator>();
-        deltaTime = Time.deltaTime;
-        speed = 1f;
     }
 
     // Update is called once per frame
@@ -65,35 +62,46 @@ public class PlayerController : MonoBehaviour
          */
         if (Input.GetKey(KeyCode.LeftArrow) || canMoveLeft)
         {
-            transform.position -= new Vector3(speed * deltaTime, 0, 0);
+            //para desplazarlo a la izquierda le sumamos un vector que el x tenga una unidad menos
+            transform.position += new Vector3(-1.0f * speed * Time.deltaTime, 0, 0);
+            //Para invertirlo y que mire el sprite a la izquierda creamos un nuevo vector que la x en negativo
+            transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
+            //Para la animación utilizamos la variable velocity del compnente animator
+            animatorPlayer.SetFloat("velocity", 1f);
         }
-
+        if (Input.GetKeyUp(KeyCode.LeftArrow))
+            animatorPlayer.SetFloat("velocity", 0); ;
+        
         if (Input.GetKey(KeyCode.RightArrow) || canMoveRight)
         {
-            transform.position += new Vector3(speed * deltaTime, 0, 0);
+            transform.position += new Vector3(1.0f * speed * Time.deltaTime, 0, 0);
+            transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+            //Como queremos que se mueva ponemos la variable velocity del animator a 1
+            animatorPlayer.SetFloat("velocity", 1f);
         }
+        if (Input.GetKeyUp(KeyCode.RightArrow))
+            animatorPlayer.SetFloat("velocity", 0);
 
+
+        
 
         //Al presionar la tecla hacia arriba saltará
         if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
             MoveJumpWithRigidBody();
-        }
+        
 
 
 
 
         //Si se pulsa la tecla espacio disparamos
         if (Input.GetKeyDown(KeyCode.Space))
-        {
-            CreateShot();
 
-        }
-            /**
-            * Invirtiendo el sprite cuando cambia de dirección
-            */
-            
-        float vHorizontal = Input.GetAxis("Horizontal");
+            CreateShot();
+        /**
+        * Invirtiendo el sprite cuando cambia de dirección
+        */
+
+        // float vHorizontal = Input.GetAxis("Horizontal");
         //Debug.Log(vHorizontal);
         //animator.SetBool("running",vHorizontal!=0.0f );
         //Aki pongo Abs por vHorizontal da 0.01
@@ -101,34 +109,24 @@ public class PlayerController : MonoBehaviour
         //Cambiamos la animación cuando vaya a la izquierda tan solo detectando si es menor qe 0 e innviertiendo el sprite
         if (vHorizontal < 0) transform.localScale = new Vector3(-1.0f,1.0f,1.0f);
         else if (vHorizontal > 0) transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+       
     }
 
-    public void MoveLeftWithTransform()
-    {
-        canMoveLeft = true;
-        //Ponemos el sprite mirando a la izquierda
-        transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
-        //Le hacemos que se anime
-        animatorPlayer.SetFloat("velocity", 1.0f);
-        //Movemos al personaje a la izquierda
-        transform.position -= new Vector3(speed * deltaTime, 0, 0);
-    }
+    public void MoveLeftWithTransform() => canMoveLeft = true;
+
+
+
     public void NotMoveLeftWithTransform()
     {
         //paramos la animación
         animatorPlayer.SetFloat("velocity", 0);
         canMoveLeft = false;
+
     }
-    public void MoveRightWithTransform()
-    {
-        canMoveRight = true;
-        //Ponemos el sprite mirando a la derecha
-        transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-        //Le hacemos que se anime
-        animatorPlayer.SetFloat("velocity", 1.0f);
-        //Movemos el personaje a la derecha
-        transform.position += new Vector3(speed * deltaTime, 0, 0);
-    }
+    public void MoveRightWithTransform() => canMoveRight = true;
+    
+        
+    
     public void NotMoveRightWithTransform()
     {
         //paramos la animación
@@ -235,7 +233,10 @@ public class PlayerController : MonoBehaviour
 
     }
 
-
+    public void SetPosition(Vector3 vector3)
+    {
+        gameObject.transform.position = vector3;
+    }
 
 
 }
