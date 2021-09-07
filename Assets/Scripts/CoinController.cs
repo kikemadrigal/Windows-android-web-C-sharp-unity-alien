@@ -16,7 +16,7 @@ public class CoinController : MonoBehaviour
         
         
     }
-
+/*
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.tag=="Player")
@@ -24,4 +24,5 @@ public class CoinController : MonoBehaviour
             Destroy(gameObject);
         }
     }
+*/
 }

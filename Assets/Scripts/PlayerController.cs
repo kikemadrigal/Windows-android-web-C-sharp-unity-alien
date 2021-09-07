@@ -12,17 +12,20 @@ public class PlayerController : MonoBehaviour
     public AudioSource audioSourceSalto;
     public AudioSource audioSourceCaida;
     public AudioSource audioSourceShot;
+    public AudioSource audioSourceCoin;
 
     //Estas 2 variables son utilizadas en el sceneController
     public bool nextLevel = false;
     public bool perdiste = false;
-
+    public bool addPoints = false;
     //delTime devuelve el intervalo en segundos desde el último frame, así que se utiliza para sincronizar
     float deltaTime;
     //Solo utilizada para que vaya más rápido
     float speed;
     bool canMoveRight = false;
     bool canMoveLeft = false;
+
+
 
    
     // Start is called before the first frame update
@@ -91,9 +94,10 @@ public class PlayerController : MonoBehaviour
             */
             
         float vHorizontal = Input.GetAxis("Horizontal");
+        //Debug.Log(vHorizontal);
         //animator.SetBool("running",vHorizontal!=0.0f );
         //Aki pongo Abs por vHorizontal da 0.01
-        //animatorPlayer.SetFloat("velocity",Mathf.Abs(vHorizontal));
+        animatorPlayer.SetFloat("velocity",Mathf.Abs(vHorizontal));
         //Cambiamos la animación cuando vaya a la izquierda tan solo detectando si es menor qe 0 e innviertiendo el sprite
         if (vHorizontal < 0) transform.localScale = new Vector3(-1.0f,1.0f,1.0f);
         else if (vHorizontal > 0) transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
@@ -131,16 +135,7 @@ public class PlayerController : MonoBehaviour
         animatorPlayer.SetFloat("velocity", 0);
         canMoveRight = false;
     }
-    public void MoveJumpWithRigidBody()
-    {
-        if (contactoSuelo)
-        {
-            audioSourceSalto.Play();
-            //Aplicamos una fuerza al rigidBody cada vez que se pulse el espacio
-            //También es posible ponerlo así: rigidbody2DPlayer.AddForce(Vector2.up * 200f);
-            rigidbody2DPlayer.AddForce(new Vector2(0, 200f));
-        }
-    }
+
     public void CreateShot()
     {
         audioSourceShot.Play();
@@ -186,27 +181,48 @@ public class PlayerController : MonoBehaviour
 
 
     }
-
+    public void MoveJumpWithRigidBody()
+    {
+        if (contactoSuelo)
+        {
+            audioSourceSalto.Play();
+            //Aplicamos una fuerza al rigidBody cada vez que se pulse el espacio
+            //También es posible ponerlo así: rigidbody2DPlayer.AddForce(Vector2.up * 200f);
+            rigidbody2DPlayer.AddForce(new Vector2(0, 200f));
+        }
+    }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Platform") contactoSuelo = true;
+        //Si el player colisiona con un enemigo
         if (collision.gameObject.tag == "Enemy")
         {
             Destroy(collision.gameObject);
             PlayerMuere();
         }
-        if (collision.gameObject.tag == "Next_level")
-        {
-            nextLevel = true;
-        }
-        //animatorPlayer.SetFloat("Saltando",0);
+       
     }
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Platform") contactoSuelo = false;
     }
 
-
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Next_level")
+        {
+            Debug.Log("player va a cambiar de nivel");
+            nextLevel = true;
+        }
+        if (collision.gameObject.tag == "Coin")
+        {
+            //destruimos la moneda
+            Destroy(collision.gameObject);
+            //Le sumamos puntos al score
+            addPoints = true;
+            audioSourceCoin.Play();
+        }
+    }
 
 
     private void PlayerMuere() {
@@ -218,6 +234,8 @@ public class PlayerController : MonoBehaviour
         perdiste = true;
 
     }
+
+
 
 
 }

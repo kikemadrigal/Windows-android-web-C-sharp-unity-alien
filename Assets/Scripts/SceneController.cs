@@ -6,7 +6,10 @@ public class SceneController : MonoBehaviour
     public void LoadGame()
     {
         SceneManager.LoadScene("GameScene");
-        Debug.Log("Pulsado play");
+    }
+    public void LoadMenu()
+    {
+        SceneManager.LoadScene("MenuScene");
     }
     private void Start()
     {

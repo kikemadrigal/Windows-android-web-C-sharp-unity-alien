@@ -9,6 +9,8 @@ TagManager:
   - Money
   - Next_level
   - Rebote
+  - Bullet
+  - Coin
   layers:
   - Default
   - TransparentFX

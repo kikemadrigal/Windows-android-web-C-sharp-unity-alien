@@ -2,20 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using UnityEngine.SceneManagement;
 public class GameController : MonoBehaviour
 {
     public AudioSource audioSourceMusic;
     public AudioSource audioSourceLost;
     public PlayerController playerController;
     public GameObject[] levelPrefab;
+    public BulletController bulletController;
     private int indiceDeNiveles;
     private GameObject objetoNivel;
-    private GameObject moneda;
     public int score;
     public Text textoDeJuego;
     public bool yaSeEscucho = false;
     private int lives;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -30,58 +31,66 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        textoDeJuego.text = "Level " + indiceDeNiveles + 1 +
-                            "\nScore: "+score ;
-        //Debug.Log(playerController.perdiste);
+        textoDeJuego.text = "Level " + indiceDeNiveles + 1 + "\nScore: " + score + "\nVidas: " + lives;
+
         if (playerController.perdiste)
         {
-      
             if (!yaSeEscucho)
             {
                 //audioSourceLost.Play();
                 //yaSeEscucho = true;
                 
             }
-            textoDeJuego.text = "Level " + indiceDeNiveles + 1 +
-                                "\nScore: " + score +
-                                "\nVidas: " + lives;
-
+            textoDeJuego.text = "Level " + indiceDeNiveles + 1 +  "\nScore: " + score + "\nVidas: " + lives;
 
             if (Input.GetKeyDown("r"))
             {
                 score = 0;
-
-
             }
 
-            /*if (playerController.nextLevel)
-            {
-
-                textoDeJuego.text = "NIvel " + indiceDeNiveles + 1 +
-                    "\nScore: " + score +
-                    "Completaste el nivel";
-                if(indiceDeNiveles== levelPrefab.Length - 1)
-                {
-                    Destroy(objetoNivel);
-                    indiceDeNiveles = 0;
-                    objetoNivel = Instantiate(levelPrefab[indiceDeNiveles]);
-                    objetoNivel.transform.SetParent(this.transform);
-                    playerController.nextLevel = false;
-                }
-                else
-                {
-                    Destroy(objetoNivel);
-                    indiceDeNiveles += 1;
-                    objetoNivel = Instantiate(levelPrefab[indiceDeNiveles]);
-                    objetoNivel.transform.SetParent(this.transform);
-                    playerController.nextLevel = false;
-                }
-
-            }*/
             PlayerMuere();
         }
-        
-        
+
+
+
+
+        if (playerController.nextLevel)
+        {
+            Debug.Log("Cambiando de nivel");
+            textoDeJuego.text = "NIvel " + indiceDeNiveles + 1 +
+                "\nScore: " + score +
+                "Completaste el nivel";
+            //Si hemos llegado al final
+            if(indiceDeNiveles== levelPrefab.Length - 1)
+            {
+                SceneManager.LoadScene("FinalScene");
+            }
+            else
+            {
+                Destroy(objetoNivel);
+                indiceDeNiveles += 1;
+                objetoNivel = Instantiate(levelPrefab[indiceDeNiveles]);
+                objetoNivel.transform.SetParent(this.transform);
+                playerController.nextLevel = false;
+            }
+
+        }
+
+
+        if (bulletController.addPoints)
+        {
+            addPoints(10);
+            updateText();
+            bulletController.addPoints = false;
+        }
+
+
+        if (playerController.addPoints)
+        {
+            addPoints(10);
+            updateText();
+            playerController.addPoints = false;
+        }
     }
 
 
@@ -103,5 +112,21 @@ public class GameController : MonoBehaviour
         playerController.perdiste = false;
         yaSeEscucho = false;
         lives -= 1;
+        //Posicionamos al player 
+        //playerController.setTransform();
+    }
+
+    public void addPoints(int points)
+    {
+        score += points;
+        playerController.addPoints = false;
+        bulletController.addPoints = false;
+    }
+
+    private void updateText()
+    {
+        textoDeJuego.text = "Level " + indiceDeNiveles + 1 +
+                    "\nScore: " + score +
+                    "\nVidas: " + lives;
     }
 }

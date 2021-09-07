@@ -7,6 +7,9 @@ public class BulletController : MonoBehaviour
     private Rigidbody2D rigidbody2DBullet;
     private float speed=2;
     private Vector2 vector2Direction;
+    public bool addPoints = false;
+    //El audio del disparo ya lo tiene asignado el player cuando presiona espacio
+    //public AudioSource audioDisparo;
     // Start is called before the first frame update
     void Start()
     {
@@ -28,17 +31,27 @@ public class BulletController : MonoBehaviour
 
     public void DestroyBullet()
     {
+
         Destroy(gameObject);
+
     }
 
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.tag == "Enemy")
+        if (collision.gameObject.tag == "Enemy")
         {
+            //Destruimos al enemigo
             Destroy(collision.gameObject);
-            Debug.Log("Colsision disparo enemigo");
+            //Destruimos la bala
+            Destroy(gameObject);
+            addPoints = true;
+        }
+        if (collision.gameObject.tag == "Platform")
+        {
+            //Destruimos la bala
             Destroy(gameObject);
         }
+
     }
 }
