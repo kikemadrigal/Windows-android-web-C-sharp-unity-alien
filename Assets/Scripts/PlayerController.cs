@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     public GameObject bulletPrefab;
     private Animator animatorPlayer;
     public AudioSource audioSourceSalto;
-    public AudioSource audioSourceCaida;
+    //public AudioSource audioSourceCaida;
     public AudioSource audioSourceShot;
     public AudioSource audioSourceCoin;
 
@@ -115,11 +115,11 @@ public class PlayerController : MonoBehaviour
     private void collider()
     {
         //Chekeo colision que se ha caido el player
-        if (transform.position.y < -1)
+        /*if (transform.position.y < -1)
         {
             audioSourceCaida.Play();
             PlayerMuere();
-        }
+        }*/
 
         /**
          * Exsiten 2 formas para detectar la colisión con la plataforma 
@@ -196,5 +196,10 @@ public class PlayerController : MonoBehaviour
         gameObject.transform.position = vector3;
     }
 
+    public Vector3 getTransform()
+    {
+        Vector3 vector3 = gameObject.transform.position;
+        return vector3;
+    }
 
 }

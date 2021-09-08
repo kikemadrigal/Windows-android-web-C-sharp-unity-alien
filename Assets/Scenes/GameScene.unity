@@ -912,7 +912,6 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
-  - component: {fileID: 519420030}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -928,23 +927,6 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
---- !u!114 &519420030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 519420028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e06c54ca548b1af43b456738d94dede9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 994423868}
-  x_minimo: 9.45
-  x_maximo: 42.7
-  y_minimo: 0.55
-  y_maximo: 0.57
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -1053,11 +1035,15 @@ MonoBehaviour:
   playerController: {fileID: 994423873}
   levelPrefab:
   - {fileID: 535604289535833033, guid: ca56d39a4591a7841831da8f81339cba, type: 3}
-  - {fileID: 535604289535833033, guid: bf62c112273ae2543b4e059398f8db34, type: 3}
+  - {fileID: 6434716684760497081, guid: cf42dbf8d881ffa42a4d287d81abdcd7, type: 3}
   bulletController: {fileID: 8641282349200017621, guid: 25f1dfb271ca2de4c9b371586ea25951, type: 3}
+  indiceDeNiveles: 0
+  camera: {fileID: 519420031}
   score: 0
   textoDeJuego: {fileID: 459120019}
   yaSeEscucho: 0
+  playerPositionX: 0
+  playerPositionY: 0
 --- !u!1 &596142496
 GameObject:
   m_ObjectHideFlags: 0
@@ -1965,7 +1951,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 994423868}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 9.511, y: -0.169, z: 16.598103}
+  m_LocalPosition: {x: 10.61, y: 0.16, z: 16.598103}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 551120755}
