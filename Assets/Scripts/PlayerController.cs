@@ -16,7 +16,6 @@ public class PlayerController : MonoBehaviour
     public AudioSource audioSourceCoin;
 
     //Estas 2 variables son utilizadas en el sceneController
-    public bool nextLevel = false;
     public bool perdiste = false;
     public bool addPoints = false;
     //delTime devuelve el intervalo en segundos desde el último frame, así que se utiliza para sincronizar
@@ -25,8 +24,9 @@ public class PlayerController : MonoBehaviour
     bool canMoveLeft = false;
 
 
+    public GameController gameController;
+    public float indiceDeniveles;
 
-   
     // Start is called before the first frame update
     void Start()
     {
@@ -40,9 +40,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         inputSystem();
-        collider();
         //Debug(); 
-        
     }
   
     private void inputSystem()
@@ -112,31 +110,7 @@ public class PlayerController : MonoBehaviour
     }
 
     
-    private void collider()
-    {
-        //Chekeo colision que se ha caido el player
-        /*if (transform.position.y < -1)
-        {
-            audioSourceCaida.Play();
-            PlayerMuere();
-        }*/
 
-        /**
-         * Exsiten 2 formas para detectar la colisión con la plataforma 
-        */
-
-        //La 1 forma es con un rayo que ira el sprite haca abajo
-        //Con esto le estamos diciendo que no salte en el aire
-        //Con esto pintamos una linea dentro de Unitity para que nos muestre el rayo que comprueba si está tocando el suelo
-        /*
-        Debug.DrawRay(transform.position, Vector3.down * 0.1f, Color.red);
-        contactoSuelo = Physics2D.Raycast(transform.position, Vector3.down);
-        */
-        //La 2 forma es con los 2 métodos que viene a continuación que son Callbacks
-
-
-
-    }
     public void MoveJumpWithRigidBody()
     {
         if (contactoSuelo)
@@ -154,7 +128,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Enemy")
         {
             Destroy(collision.gameObject);
-            PlayerMuere();
+            gameController.PlayerMuere();
         }
        
     }
@@ -167,8 +141,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.tag == "Next_level")
         {
-            Debug.Log("player va a cambiar de nivel");
-            nextLevel = true;
+            gameController.NextLevel();
         }
         if (collision.gameObject.tag == "Coin")
         {
@@ -181,15 +154,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    private void PlayerMuere() {
-        //transform.position = new Vector3(startPoint.transform.position.x, startPoint.transform.position.y, transform.position.z);
-        
-        //Con esto conseguimos que el player se congele
-        rigidbody2DPlayer.constraints = RigidbodyConstraints2D.FreezeAll;
-        //El perdiste será gestionado en SceneController
-        perdiste = true;
 
-    }
 
     public void SetPosition(Vector3 vector3)
     {
